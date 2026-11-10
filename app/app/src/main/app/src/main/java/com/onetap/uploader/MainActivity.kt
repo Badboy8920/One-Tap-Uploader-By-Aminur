@@ -1,4 +1,4 @@
-package com.onetap.uploader
+package com.onetap.uploade
 
 import android.app.Activity
 import android.os.Bundle
