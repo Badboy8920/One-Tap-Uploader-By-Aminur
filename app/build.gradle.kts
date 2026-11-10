@@ -1,4 +1,3 @@
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -7,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.onetap.uploader"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.onetap.uploader"
-        minSdk = 23
-        targetSdk = 35
+        minSdk = 24
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
     }
