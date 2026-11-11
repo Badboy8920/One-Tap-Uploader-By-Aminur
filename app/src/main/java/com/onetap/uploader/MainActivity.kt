@@ -14,7 +14,6 @@ import android.view.Gravity
 import android.view.View
 import android.widget.*
 import org.json.JSONArray
-import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
@@ -30,6 +29,11 @@ class MainActivity : Activity() {
     private var selectedVideo: Uri? = null
     private var scheduledDate = ""
     private var scheduledTime = ""
+
+    // Edit mode
+    private var editingIndex = -1
+    private var editTitle = ""
+    private var editCaption = ""
 
     private lateinit var root: LinearLayout
     private lateinit var content: LinearLayout
@@ -199,7 +203,6 @@ class MainActivity : Activity() {
 
         scroll.addView(content)
 
-        // FIXED HOME SCROLLVIEW
         root.addView(
             scroll,
             LinearLayout.LayoutParams(
@@ -233,10 +236,20 @@ class MainActivity : Activity() {
         section(detailsCard, "2. Video Details")
 
         titleInput = field("Enter video title", false)
+
+        if (editingIndex >= 0) {
+            titleInput.setText(editTitle)
+        }
+
         detailsCard.addView(titleInput)
         addSpace(detailsCard)
 
         captionInput = field("Enter caption and hashtags", true)
+
+        if (editingIndex >= 0) {
+            captionInput.setText(editCaption)
+        }
+
         detailsCard.addView(captionInput)
 
         addCard(content, detailsCard)
@@ -304,12 +317,32 @@ class MainActivity : Activity() {
         addSpace(actionCard)
 
         actionCard.addView(
+            text(
+                "Selected Date: ${if (scheduledDate.isEmpty()) "Not selected" else scheduledDate}",
+                14f,
+                muted
+            )
+        )
+
+        addSpace(actionCard, 6)
+
+        actionCard.addView(
             styledButton("Choose Schedule Date") {
                 chooseDate()
             }
         )
 
         addSpace(actionCard)
+
+        actionCard.addView(
+            text(
+                "Selected Time: ${if (scheduledTime.isEmpty()) "Not selected" else scheduledTime}",
+                14f,
+                muted
+            )
+        )
+
+        addSpace(actionCard, 6)
 
         actionCard.addView(
             styledButton("Choose Schedule Time") {
@@ -320,13 +353,28 @@ class MainActivity : Activity() {
         addSpace(actionCard)
 
         val scheduleButton = styledButton(
-            "Save Scheduled Video",
+            if (editingIndex >= 0) "Update Scheduled Video"
+            else "Save Scheduled Video",
             Color.rgb(25, 160, 110)
         ) {
             saveSchedule()
         }
 
         actionCard.addView(scheduleButton)
+
+        if (editingIndex >= 0) {
+            addSpace(actionCard)
+
+            actionCard.addView(
+                styledButton(
+                    "Cancel Edit",
+                    Color.rgb(190, 90, 65)
+                ) {
+                    cancelEdit()
+                }
+            )
+        }
+
         addCard(content, actionCard)
 
         val listCard = makeCard()
@@ -401,6 +449,18 @@ class MainActivity : Activity() {
 
         val calendar = Calendar.getInstance()
 
+        if (scheduledDate.isNotEmpty()) {
+            try {
+                val parts = scheduledDate.split("-")
+                calendar.set(
+                    parts[0].toInt(),
+                    parts[1].toInt() - 1,
+                    parts[2].toInt()
+                )
+            } catch (_: Exception) {
+            }
+        }
+
         DatePickerDialog(
             this,
             { _, year, month, day ->
@@ -414,6 +474,7 @@ class MainActivity : Activity() {
                 )
 
                 showMessage("Date selected: $scheduledDate")
+                showHome()
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -424,6 +485,21 @@ class MainActivity : Activity() {
     private fun chooseTime() {
 
         val calendar = Calendar.getInstance()
+
+        if (scheduledTime.isNotEmpty()) {
+            try {
+                val parts = scheduledTime.split(":")
+                calendar.set(
+                    Calendar.HOUR_OF_DAY,
+                    parts[0].toInt()
+                )
+                calendar.set(
+                    Calendar.MINUTE,
+                    parts[1].toInt()
+                )
+            } catch (_: Exception) {
+            }
+        }
 
         TimePickerDialog(
             this,
@@ -437,6 +513,7 @@ class MainActivity : Activity() {
                 )
 
                 showMessage("Time selected: $scheduledTime")
+                showHome()
             },
             calendar.get(Calendar.HOUR_OF_DAY),
             calendar.get(Calendar.MINUTE),
@@ -485,11 +562,80 @@ class MainActivity : Activity() {
             put(caption)
         }
 
-        scheduledVideos.add(item.toString())
-        persistSchedules()
+        if (editingIndex >= 0) {
 
-        showMessage("Scheduled video saved successfully!")
+            if (editingIndex < scheduledVideos.size) {
+                scheduledVideos[editingIndex] = item.toString()
+            } else {
+                showMessage("Schedule not found. Please try again.")
+                cancelEdit()
+                return
+            }
+
+            editingIndex = -1
+            showMessage("Scheduled video updated successfully!")
+
+        } else {
+
+            scheduledVideos.add(item.toString())
+            showMessage("Scheduled video saved successfully!")
+        }
+
+        persistSchedules()
+        clearForm()
         showScheduled()
+    }
+
+    private fun editSchedule(index: Int) {
+
+        if (index !in scheduledVideos.indices) {
+            showMessage("Schedule not found")
+            return
+        }
+
+        try {
+            val data = JSONArray(scheduledVideos[index])
+
+            editTitle = data.optString(0)
+            scheduledDate = data.optString(1)
+            scheduledTime = data.optString(2)
+
+            val platforms = data.optString(3)
+
+            selectedVideo = Uri.parse(data.optString(4))
+            editCaption = data.optString(5)
+
+            youtubeSelected = platforms.contains("YouTube")
+            instagramSelected = platforms.contains("Instagram")
+            facebookSelected = platforms.contains("Facebook")
+
+            editingIndex = index
+
+            showHome()
+            showMessage("Edit your schedule and press Update")
+
+        } catch (_: Exception) {
+            showMessage("Unable to edit this schedule")
+        }
+    }
+
+    private fun cancelEdit() {
+        clearForm()
+        showHome()
+        showMessage("Edit cancelled")
+    }
+
+    private fun clearForm() {
+        editingIndex = -1
+        editTitle = ""
+        editCaption = ""
+        selectedVideo = null
+        scheduledDate = ""
+        scheduledTime = ""
+
+        youtubeSelected = true
+        instagramSelected = false
+        facebookSelected = false
     }
 
     private fun persistSchedules() {
@@ -569,12 +715,24 @@ class MainActivity : Activity() {
 
                     card.addView(
                         styledButton(
+                            "Edit Schedule",
+                            Color.rgb(55, 115, 200)
+                        ) {
+                            editSchedule(index)
+                        }
+                    )
+
+                    addSpace(card)
+
+                    card.addView(
+                        styledButton(
                             "Delete Schedule",
                             Color.rgb(190, 55, 65)
                         ) {
                             scheduledVideos.removeAt(index)
                             persistSchedules()
                             showScheduled()
+                            showMessage("Schedule deleted")
                         }
                     )
 
@@ -587,7 +745,6 @@ class MainActivity : Activity() {
 
         scroll.addView(list)
 
-        // FIXED SCHEDULE SCROLLVIEW
         page.addView(
             scroll,
             LinearLayout.LayoutParams(
