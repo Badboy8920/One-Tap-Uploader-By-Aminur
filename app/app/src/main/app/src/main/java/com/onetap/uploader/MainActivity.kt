@@ -1,4 +1,3 @@
-
 package com.onetap.uploader
 
 import android.app.Activity
@@ -40,17 +39,20 @@ class MainActivity : Activity() {
         (value * resources.displayMetrics.density).toInt()
 
     private val bg: Int
-        get() = if (darkMode) Color.rgb(14, 22, 38) else Color.rgb(245, 247, 252)
+        get() = if (darkMode) Color.rgb(14, 22, 38)
+        else Color.rgb(245, 247, 252)
 
     private val card: Int
-        get() = if (darkMode) Color.rgb(28, 40, 61) else Color.WHITE
+        get() = if (darkMode) Color.rgb(28, 40, 61)
+        else Color.WHITE
 
     private val fg: Int
-        get() = if (darkMode) Color.WHITE else Color.rgb(28, 38, 55)
+        get() = if (darkMode) Color.WHITE
+        else Color.rgb(28, 38, 55)
 
     private val muted: Int
         get() = if (darkMode) Color.rgb(175, 190, 210)
-                else Color.rgb(105, 118, 138)
+        else Color.rgb(105, 118, 138)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,8 +85,7 @@ class MainActivity : Activity() {
     }
 
     private fun section(value: String) {
-        val t = text(value, 18f, fg, true)
-        root.addView(t)
+        root.addView(text(value, 18f, fg, true))
         addSpace(root, 10)
     }
 
@@ -123,6 +124,7 @@ class MainActivity : Activity() {
             setHintTextColor(muted)
             setPadding(dp(12), dp(12), dp(12), dp(12))
             background = rounded(bg, 12)
+
             if (multiline) {
                 minLines = 3
                 gravity = Gravity.TOP
@@ -150,46 +152,68 @@ class MainActivity : Activity() {
         val brand = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
+
         brand.addView(text("OneTap Uploader", 23f, fg, true))
         brand.addView(text("Create • Schedule • Publish", 12f, muted))
 
-        header.addView(brand, LinearLayout.LayoutParams(0, -2, 1f))
+        header.addView(
+            brand,
+            LinearLayout.LayoutParams(0, -2, 1f)
+        )
 
-        val themeButton = styledButton(if (darkMode) "☀ Light" else "☾ Dark")
+        val themeButton = styledButton(
+            if (darkMode) "☀ Light" else "☾ Dark"
+        )
+
         themeButton.setOnClickListener {
             darkMode = !darkMode
             showHome()
         }
+
         header.addView(themeButton)
         root.addView(header)
         addSpace(root, 22)
 
         val welcome = makeCard()
-        welcome.addView(text("Ready to share your next video?", 20f, fg, true))
+
+        welcome.addView(
+            text("Ready to share your next video?", 20f, fg, true)
+        )
+
         addSpace(welcome, 8)
-        welcome.addView(text(
-            "Select one video and prepare it for your social platforms.",
-            13f, muted
-        ))
+
+        welcome.addView(
+            text(
+                "Select one video and prepare it for your social platforms.",
+                13f,
+                muted
+            )
+        )
+
         addSpace(welcome, 18)
 
-        val selectButton = styledButton("＋  Select Your Video")
+        val selectButton = styledButton("＋ Select Your Video")
+
         selectButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 type = "video/*"
                 addCategory(Intent.CATEGORY_OPENABLE)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
+
             startActivityForResult(intent, 1001)
         }
-        welcome.addView(selectButton)
 
+        welcome.addView(selectButton)
         addSpace(welcome, 12)
+
         videoStatus = text(
             if (selectedVideo == null) "No video selected"
             else "✓ Video selected",
-            13f, muted
+            13f,
+            muted
         )
+
         welcome.addView(videoStatus)
         addCard(welcome)
 
@@ -199,22 +223,38 @@ class MainActivity : Activity() {
             orientation = LinearLayout.HORIZONTAL
         }
 
-        fun platform(label: String, emoji: String, checked: Boolean,
-                     callback: (Boolean) -> Unit): CheckBox {
+        fun platform(
+            label: String,
+            emoji: String,
+            checked: Boolean,
+            callback: (Boolean) -> Unit
+        ): CheckBox {
             return CheckBox(this).apply {
                 text = "$emoji\n$label"
                 textSize = 13f
                 gravity = Gravity.CENTER
                 isChecked = checked
                 setTextColor(fg)
-                buttonTintList = android.content.res.ColorStateList.valueOf(blue)
-                setOnCheckedChangeListener { _, value -> callback(value) }
+                buttonTintList =
+                    android.content.res.ColorStateList.valueOf(blue)
+
+                setOnCheckedChangeListener { _, value ->
+                    callback(value)
+                }
             }
         }
 
-        val yt = platform("YouTube", "▶️", youtube) { youtube = it }
-        val ig = platform("Instagram", "📸", instagram) { instagram = it }
-        val fb = platform("Facebook", "f", facebook) { facebook = it }
+        val yt = platform("YouTube", "▶️", youtube) {
+            youtube = it
+        }
+
+        val ig = platform("Instagram", "📸", instagram) {
+            instagram = it
+        }
+
+        val fb = platform("Facebook", "f", facebook) {
+            facebook = it
+        }
 
         platforms.addView(yt, LinearLayout.LayoutParams(0, dp(85), 1f))
         platforms.addView(ig, LinearLayout.LayoutParams(0, dp(85), 1f))
@@ -227,6 +267,7 @@ class MainActivity : Activity() {
         section("Video Details")
 
         val details = makeCard()
+
         titleInput = field("Enter video title", false)
         captionInput = field("Write caption and hashtags", true)
 
@@ -239,77 +280,107 @@ class MainActivity : Activity() {
 
         val options = makeCard()
 
-        val uploadNow = styledButton("↗  Upload Now")
+        val uploadNow = styledButton("↗ Upload Now")
+
         uploadNow.setOnClickListener {
             showMessage("Upload feature is not connected yet.")
         }
-        options.addView(uploadNow)
 
+        options.addView(uploadNow)
         addSpace(options, 12)
 
         dateStatus = text(
             if (scheduledDate.isEmpty()) "Select upload date"
             else "Date: $scheduledDate",
-            14f, fg, true
+            14f,
+            fg,
+            true
         )
+
         options.addView(dateStatus)
 
-        val dateButton = styledButton("📅  Choose Date")
-        dateButton.setOnClickListener { chooseDate() }
+        val dateButton = styledButton("📅 Choose Date")
+
+        dateButton.setOnClickListener {
+            chooseDate()
+        }
+
         addSpace(options, 8)
         options.addView(dateButton)
-
         addSpace(options, 14)
 
         timeStatus = text(
             if (scheduledTime.isEmpty()) "Select upload time"
             else "Time: $scheduledTime",
-            14f, fg, true
+            14f,
+            fg,
+            true
         )
+
         options.addView(timeStatus)
 
-        val timeButton = styledButton("🕒  Choose Time")
-        timeButton.setOnClickListener { chooseTime() }
+        val timeButton = styledButton("🕒 Choose Time")
+
+        timeButton.setOnClickListener {
+            chooseTime()
+        }
+
         addSpace(options, 8)
         options.addView(timeButton)
-
         addSpace(options, 16)
 
-        val scheduleButton = styledButton("＋  Schedule Upload")
-        scheduleButton.setOnClickListener { saveSchedule() }
-        options.addView(scheduleButton)
+        val scheduleButton = styledButton("＋ Schedule Upload")
 
+        scheduleButton.setOnClickListener {
+            saveSchedule()
+        }
+
+        options.addView(scheduleButton)
         addCard(options)
 
         section("My Scheduled Videos")
 
         val history = makeCard()
+
         if (scheduledVideos.isEmpty()) {
-            history.addView(text("No scheduled videos yet.", 14f, muted))
+            history.addView(
+                text("No scheduled videos yet.", 14f, muted)
+            )
         } else {
             scheduledVideos.forEachIndexed { index, item ->
                 history.addView(text("${index + 1}. $item", 14f, fg))
                 addSpace(history, 8)
             }
         }
+
         addCard(history)
 
-        root.addView(text(
-            "Home  •  Scheduled  •  History  •  Settings",
-            12f, muted
-        ).apply { gravity = Gravity.CENTER })
+        root.addView(
+            text(
+                "Home • Scheduled • History • Settings",
+                12f,
+                muted
+            ).apply {
+                gravity = Gravity.CENTER
+            }
+        )
 
         setContentView(scroll)
     }
 
     private fun chooseDate() {
         val c = Calendar.getInstance()
+
         DatePickerDialog(
             this,
             { _, year, month, day ->
                 scheduledDate = String.format(
-                    "%04d-%02d-%02d", year, month + 1, day
+                    "%04d-%02d-%02d",
+                    year,
+                    month + 1,
+                    day
                 )
+
                 dateStatus.text = "Date: $scheduledDate"
             },
             c.get(Calendar.YEAR),
@@ -320,10 +391,16 @@ class MainActivity : Activity() {
 
     private fun chooseTime() {
         val c = Calendar.getInstance()
+
         TimePickerDialog(
             this,
             { _, hour, minute ->
-                scheduledTime = String.format("%02d:%02d", hour, minute)
+                scheduledTime = String.format(
+                    "%02d:%02d",
+                    hour,
+                    minute
+                )
+
                 timeStatus.text = "Time: $scheduledTime"
             },
             c.get(Calendar.HOUR_OF_DAY),
@@ -339,14 +416,17 @@ class MainActivity : Activity() {
             showMessage("Please select a video first.")
             return
         }
+
         if (title.isEmpty()) {
             showMessage("Please enter a video title.")
             return
         }
+
         if (scheduledDate.isEmpty() || scheduledTime.isEmpty()) {
             showMessage("Please select date and time.")
             return
         }
+
         if (!youtube && !instagram && !facebook) {
             showMessage("Please choose at least one platform.")
             return
@@ -362,7 +442,10 @@ class MainActivity : Activity() {
             "$title • $scheduledDate $scheduledTime • $platforms"
         )
 
-        showMessage("Schedule saved in this session. Automatic publishing is not connected.")
+        showMessage(
+            "Schedule saved in this session. Automatic publishing is not connected."
+        )
+
         showHome()
     }
 
@@ -380,9 +463,12 @@ class MainActivity : Activity() {
 
         if (requestCode == 1001 && resultCode == RESULT_OK) {
             selectedVideo = data?.data
-            videoStatus.text = if (selectedVideo != null)
-                "✓ Video selected successfully"
-            else "No video selected"
+
+            videoStatus.text =
+                if (selectedVideo != null)
+                    "✓ Video selected successfully"
+                else
+                    "No video selected"
         }
     }
 }
