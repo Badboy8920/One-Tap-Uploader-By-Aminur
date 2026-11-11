@@ -42,16 +42,20 @@ class MainActivity : Activity() {
     private var facebookSelected = false
 
     private val bg: Int
-        get() = if (darkMode) Color.rgb(13, 20, 38) else Color.rgb(245, 247, 252)
+        get() = if (darkMode) Color.rgb(13, 20, 38)
+        else Color.rgb(245, 247, 252)
 
     private val cardBg: Int
-        get() = if (darkMode) Color.rgb(25, 36, 59) else Color.WHITE
+        get() = if (darkMode) Color.rgb(25, 36, 59)
+        else Color.WHITE
 
     private val fg: Int
-        get() = if (darkMode) Color.WHITE else Color.rgb(25, 35, 55)
+        get() = if (darkMode) Color.WHITE
+        else Color.rgb(25, 35, 55)
 
     private val muted: Int
-        get() = if (darkMode) Color.LTGRAY else Color.DKGRAY
+        get() = if (darkMode) Color.LTGRAY
+        else Color.DKGRAY
 
     private val blue = Color.rgb(55, 115, 255)
 
@@ -152,6 +156,7 @@ class MainActivity : Activity() {
     }
 
     private fun showHome() {
+
         root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(bg)
@@ -164,6 +169,7 @@ class MainActivity : Activity() {
         }
 
         val heading = text("OneTap Uploader", 23f, fg, true)
+
         header.addView(
             heading,
             LinearLayout.LayoutParams(0, -2, 1f)
@@ -186,14 +192,21 @@ class MainActivity : Activity() {
         addSpace(root, 18)
 
         val scroll = ScrollView(this)
+
         content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
 
         scroll.addView(content)
+
+        // FIXED HOME SCROLLVIEW
         root.addView(
             scroll,
-            LinearLayout.LayoutParams(0, 0, 1f)
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
         )
 
         val videoCard = makeCard()
@@ -204,6 +217,7 @@ class MainActivity : Activity() {
             14f,
             muted
         )
+
         videoCard.addView(videoLabel)
         addSpace(videoCard)
 
@@ -212,6 +226,7 @@ class MainActivity : Activity() {
                 chooseVideo()
             }
         )
+
         addCard(content, videoCard)
 
         val detailsCard = makeCard()
@@ -223,6 +238,7 @@ class MainActivity : Activity() {
 
         captionInput = field("Enter caption and hashtags", true)
         detailsCard.addView(captionInput)
+
         addCard(content, detailsCard)
 
         val platformCard = makeCard()
@@ -232,7 +248,9 @@ class MainActivity : Activity() {
             text = "▶ YouTube"
             setTextColor(fg)
             isChecked = youtubeSelected
-            buttonTintList = android.content.res.ColorStateList.valueOf(blue)
+            buttonTintList =
+                android.content.res.ColorStateList.valueOf(blue)
+
             setOnCheckedChangeListener { _, checked ->
                 youtubeSelected = checked
             }
@@ -242,7 +260,9 @@ class MainActivity : Activity() {
             text = "◎ Instagram"
             setTextColor(fg)
             isChecked = instagramSelected
-            buttonTintList = android.content.res.ColorStateList.valueOf(blue)
+            buttonTintList =
+                android.content.res.ColorStateList.valueOf(blue)
+
             setOnCheckedChangeListener { _, checked ->
                 instagramSelected = checked
             }
@@ -252,7 +272,9 @@ class MainActivity : Activity() {
             text = "f Facebook"
             setTextColor(fg)
             isChecked = facebookSelected
-            buttonTintList = android.content.res.ColorStateList.valueOf(blue)
+            buttonTintList =
+                android.content.res.ColorStateList.valueOf(blue)
+
             setOnCheckedChangeListener { _, checked ->
                 facebookSelected = checked
             }
@@ -261,6 +283,7 @@ class MainActivity : Activity() {
         platformCard.addView(youtube)
         platformCard.addView(instagram)
         platformCard.addView(facebook)
+
         addCard(content, platformCard)
 
         val actionCard = makeCard()
@@ -287,6 +310,7 @@ class MainActivity : Activity() {
         )
 
         addSpace(actionCard)
+
         actionCard.addView(
             styledButton("Choose Schedule Time") {
                 chooseTime()
@@ -307,11 +331,13 @@ class MainActivity : Activity() {
 
         val listCard = makeCard()
         section(listCard, "5. My Scheduled Videos")
+
         listCard.addView(
             styledButton("View Scheduled Videos") {
                 showScheduled()
             }
         )
+
         addCard(content, listCard)
 
         val footer = LinearLayout(this).apply {
@@ -338,6 +364,7 @@ class MainActivity : Activity() {
             addCategory(Intent.CATEGORY_OPENABLE)
             type = "video/*"
         }
+
         startActivityForResult(intent, 1001)
     }
 
@@ -350,6 +377,7 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == 1001 && resultCode == Activity.RESULT_OK) {
+
             data?.data?.let { uri ->
                 selectedVideo = uri
 
@@ -362,18 +390,21 @@ class MainActivity : Activity() {
                 }
 
                 if (::videoLabel.isInitialized) {
-                    videoLabel.text = uri.lastPathSegment ?: "Video selected"
+                    videoLabel.text =
+                        uri.lastPathSegment ?: "Video selected"
                 }
             }
         }
     }
 
     private fun chooseDate() {
+
         val calendar = Calendar.getInstance()
 
         DatePickerDialog(
             this,
             { _, year, month, day ->
+
                 scheduledDate = String.format(
                     Locale.getDefault(),
                     "%04d-%02d-%02d",
@@ -381,6 +412,7 @@ class MainActivity : Activity() {
                     month + 1,
                     day
                 )
+
                 showMessage("Date selected: $scheduledDate")
             },
             calendar.get(Calendar.YEAR),
@@ -390,17 +422,20 @@ class MainActivity : Activity() {
     }
 
     private fun chooseTime() {
+
         val calendar = Calendar.getInstance()
 
         TimePickerDialog(
             this,
             { _, hour, minute ->
+
                 scheduledTime = String.format(
                     Locale.getDefault(),
                     "%02d:%02d",
                     hour,
                     minute
                 )
+
                 showMessage("Time selected: $scheduledTime")
             },
             calendar.get(Calendar.HOUR_OF_DAY),
@@ -410,12 +445,14 @@ class MainActivity : Activity() {
     }
 
     private fun saveSchedule() {
+
         if (selectedVideo == null) {
             showMessage("Please select a video first")
             return
         }
 
         val title = titleInput.text.toString().trim()
+
         if (title.isEmpty()) {
             showMessage("Please enter video title")
             return
@@ -456,6 +493,7 @@ class MainActivity : Activity() {
     }
 
     private fun persistSchedules() {
+
         val array = JSONArray()
 
         scheduledVideos.forEach {
@@ -468,6 +506,7 @@ class MainActivity : Activity() {
     }
 
     private fun loadSchedules() {
+
         scheduledVideos.clear()
 
         val saved = prefs.getString("scheduled_videos", null) ?: return
@@ -478,12 +517,14 @@ class MainActivity : Activity() {
             for (i in 0 until array.length()) {
                 scheduledVideos.add(array.getString(i))
             }
+
         } catch (_: Exception) {
             scheduledVideos.clear()
         }
     }
 
     private fun showScheduled() {
+
         val page = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(16), dp(16), dp(16), dp(16))
@@ -494,14 +535,19 @@ class MainActivity : Activity() {
         addSpace(page, 16)
 
         val scroll = ScrollView(this)
+
         val list = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
 
         if (scheduledVideos.isEmpty()) {
+
             list.addView(text("No scheduled videos yet.", 15f, muted))
+
         } else {
+
             scheduledVideos.forEachIndexed { index, savedItem ->
+
                 try {
                     val data = JSONArray(savedItem)
 
@@ -511,8 +557,10 @@ class MainActivity : Activity() {
                     val platforms = data.optString(3)
 
                     val card = makeCard()
+
                     card.addView(text(title, 17f, fg, true))
                     addSpace(card, 6)
+
                     card.addView(text("Date: $date", 14f, muted))
                     card.addView(text("Time: $time", 14f, muted))
                     card.addView(text("Platforms: $platforms", 14f, muted))
@@ -531,15 +579,22 @@ class MainActivity : Activity() {
                     )
 
                     addCard(list, card)
+
                 } catch (_: Exception) {
                 }
             }
         }
 
         scroll.addView(list)
+
+        // FIXED SCHEDULE SCROLLVIEW
         page.addView(
             scroll,
-            LinearLayout.LayoutParams(0, 0, 1f)
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
         )
 
         page.addView(
