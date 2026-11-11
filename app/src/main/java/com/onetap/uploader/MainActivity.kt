@@ -82,7 +82,10 @@ class MainActivity : Activity() {
     }
 
     private fun addSpace(parent: LinearLayout, height: Int) {
-        parent.addView(View(this), LinearLayout.LayoutParams(1, dp(height)))
+        parent.addView(
+            View(this),
+            LinearLayout.LayoutParams(1, dp(height))
+        )
     }
 
     private fun section(value: String) {
@@ -117,7 +120,10 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun field(hintText: String, multiline: Boolean): EditText {
+    private fun field(
+        hintText: String,
+        multiline: Boolean
+    ): EditText {
         return EditText(this).apply {
             hint = hintText
             textSize = 15f
@@ -130,12 +136,13 @@ class MainActivity : Activity() {
                 minLines = 3
                 gravity = Gravity.TOP
             } else {
-                singleLine = true
+                setSingleLine(true)
             }
         }
     }
 
     private fun showHome() {
+
         root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(20), dp(18), dp(20), dp(24))
@@ -144,6 +151,8 @@ class MainActivity : Activity() {
 
         val scroll = ScrollView(this)
         scroll.addView(root)
+
+        // Header
 
         val header = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
@@ -154,8 +163,13 @@ class MainActivity : Activity() {
             orientation = LinearLayout.VERTICAL
         }
 
-        brand.addView(text("OneTap Uploader", 23f, fg, true))
-        brand.addView(text("Create • Schedule • Publish", 12f, muted))
+        brand.addView(
+            text("OneTap Uploader", 23f, fg, true)
+        )
+
+        brand.addView(
+            text("Create • Schedule • Publish", 12f, muted)
+        )
 
         header.addView(
             brand,
@@ -173,7 +187,10 @@ class MainActivity : Activity() {
 
         header.addView(themeButton)
         root.addView(header)
+
         addSpace(root, 22)
+
+        // Video Selection Card
 
         val welcome = makeCard()
 
@@ -218,6 +235,8 @@ class MainActivity : Activity() {
         welcome.addView(videoStatus)
         addCard(welcome)
 
+        // Platform Selection
+
         section("Choose Platforms")
 
         val platforms = LinearLayout(this).apply {
@@ -230,12 +249,14 @@ class MainActivity : Activity() {
             checked: Boolean,
             callback: (Boolean) -> Unit
         ): CheckBox {
+
             return CheckBox(this).apply {
                 text = "$emoji\n$label"
                 textSize = 13f
                 gravity = Gravity.CENTER
                 isChecked = checked
                 setTextColor(fg)
+
                 buttonTintList =
                     android.content.res.ColorStateList.valueOf(blue)
 
@@ -257,13 +278,26 @@ class MainActivity : Activity() {
             facebook = it
         }
 
-        platforms.addView(yt, LinearLayout.LayoutParams(0, dp(85), 1f))
-        platforms.addView(ig, LinearLayout.LayoutParams(0, dp(85), 1f))
-        platforms.addView(fb, LinearLayout.LayoutParams(0, dp(85), 1f))
+        platforms.addView(
+            yt,
+            LinearLayout.LayoutParams(0, dp(85), 1f)
+        )
+
+        platforms.addView(
+            ig,
+            LinearLayout.LayoutParams(0, dp(85), 1f)
+        )
+
+        platforms.addView(
+            fb,
+            LinearLayout.LayoutParams(0, dp(85), 1f)
+        )
 
         val platformCard = makeCard()
         platformCard.addView(platforms)
         addCard(platformCard)
+
+        // Video Details
 
         section("Video Details")
 
@@ -273,9 +307,14 @@ class MainActivity : Activity() {
         captionInput = field("Write caption and hashtags", true)
 
         details.addView(titleInput)
+
         addSpace(details, 12)
+
         details.addView(captionInput)
+
         addCard(details)
+
+        // Publishing Options
 
         section("Publishing Options")
 
@@ -288,6 +327,7 @@ class MainActivity : Activity() {
         }
 
         options.addView(uploadNow)
+
         addSpace(options, 12)
 
         dateStatus = text(
@@ -308,6 +348,7 @@ class MainActivity : Activity() {
 
         addSpace(options, 8)
         options.addView(dateButton)
+
         addSpace(options, 14)
 
         timeStatus = text(
@@ -328,6 +369,7 @@ class MainActivity : Activity() {
 
         addSpace(options, 8)
         options.addView(timeButton)
+
         addSpace(options, 16)
 
         val scheduleButton = styledButton("＋ Schedule Upload")
@@ -337,44 +379,56 @@ class MainActivity : Activity() {
         }
 
         options.addView(scheduleButton)
+
         addCard(options)
+
+        // Scheduled Videos
 
         section("My Scheduled Videos")
 
         val history = makeCard()
 
         if (scheduledVideos.isEmpty()) {
+
             history.addView(
                 text("No scheduled videos yet.", 14f, muted)
             )
+
         } else {
+
             scheduledVideos.forEachIndexed { index, item ->
-                history.addView(text("${index + 1}. $item", 14f, fg))
+
+                history.addView(
+                    text("${index + 1}. $item", 14f, fg)
+                )
+
                 addSpace(history, 8)
             }
         }
 
         addCard(history)
 
-        root.addView(
-            text(
-                "Home • Scheduled • History • Settings",
-                12f,
-                muted
-            ).apply {
-                gravity = Gravity.CENTER
-            }
+        val footer = text(
+            "Home • Scheduled • History • Settings",
+            12f,
+            muted
         )
+
+        footer.gravity = Gravity.CENTER
+
+        root.addView(footer)
 
         setContentView(scroll)
     }
 
     private fun chooseDate() {
+
         val c = Calendar.getInstance()
 
         DatePickerDialog(
             this,
             { _, year, month, day ->
+
                 scheduledDate = String.format(
                     "%04d-%02d-%02d",
                     year,
@@ -391,11 +445,13 @@ class MainActivity : Activity() {
     }
 
     private fun chooseTime() {
+
         val c = Calendar.getInstance()
 
         TimePickerDialog(
             this,
             { _, hour, minute ->
+
                 scheduledTime = String.format(
                     "%02d:%02d",
                     hour,
@@ -411,6 +467,7 @@ class MainActivity : Activity() {
     }
 
     private fun saveSchedule() {
+
         val title = titleInput.text.toString().trim()
 
         if (selectedVideo == null) {
@@ -451,7 +508,12 @@ class MainActivity : Activity() {
     }
 
     private fun showMessage(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
     }
 
     @Deprecated("Deprecated in Android")
@@ -460,9 +522,11 @@ class MainActivity : Activity() {
         resultCode: Int,
         data: Intent?
     ) {
+
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == 1001 && resultCode == RESULT_OK) {
+
             selectedVideo = data?.data
 
             videoStatus.text =
