@@ -1,3 +1,4 @@
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -12,8 +13,8 @@ android {
         applicationId = "com.onetap.uploader"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.1"
     }
 
     compileOptions {
@@ -38,5 +39,9 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+
+    // Background scheduled tasks
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
