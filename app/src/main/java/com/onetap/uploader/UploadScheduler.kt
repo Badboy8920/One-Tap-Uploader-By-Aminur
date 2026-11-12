@@ -19,25 +19,29 @@ object UploadScheduler {
         platforms: String,
         delayMillis: Long
     ) {
+
         val input = Data.Builder()
+            .putString("scheduleId", id)
             .putString("title", title)
             .putString("videoUri", videoUri)
             .putString("caption", caption)
             .putString("platforms", platforms)
             .build()
 
-        val request = OneTimeWorkRequestBuilder<UploadWorker>()
-            .setInputData(input)
-            .setInitialDelay(
-                delayMillis.coerceAtLeast(0L),
-                TimeUnit.MILLISECONDS
-            )
-            .build()
+        val request =
+            OneTimeWorkRequestBuilder<UploadWorker>()
+                .setInputData(input)
+                .setInitialDelay(
+                    delayMillis.coerceAtLeast(0L),
+                    TimeUnit.MILLISECONDS
+                )
+                .build()
 
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            "scheduled_upload_$id",
-            ExistingWorkPolicy.REPLACE,
-            request
-        )
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(
+                "scheduled_upload_$id",
+                ExistingWorkPolicy.REPLACE,
+                request
+            )
     }
 }
