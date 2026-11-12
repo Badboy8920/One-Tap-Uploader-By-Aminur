@@ -911,136 +911,123 @@ class MainActivity : Activity() {
 
     private fun showScheduled() {
 
-        val page = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(
-                dp(16),
-                dp(16),
-                dp(16),
-                dp(16)
-            )
-            setBackgroundColor(bg)
-        }
+    loadSchedules()
 
-        page.addView(
-            text(
-                "My Scheduled Videos",
-                23f,
-                fg,
-                true
-            )
-        )
-
-        addSpace(page, 16)
-
-        val scroll = ScrollView(this)
-
-        val list = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-
-        if (scheduledVideos.isEmpty()) {
-
-            list.addView(
-                text(
-                    "No scheduled videos yet.",
-                    15f,
-                    muted
-                )
-            )
-
-        } else {
-
-            scheduledVideos.forEachIndexed {
-                index, savedItem ->
-
-                try {
-
-                    val data = JSONArray(savedItem)
-
-                    val title = data.optString(0)
-                    val date = data.optString(1)
-                    val time = data.optString(2)
-                    val platforms = data.optString(3)
-
-                    val card = makeCard()
-
-                    card.addView(
-                        text(
-                            title,
-                            17f,
-                            fg,
-                            true
-                        )
-                    )
-
-                    addSpace(card, 6)
-
-                    card.addView(
-                        text("Date: $date", 14f, muted)
-                    )
-
-                    card.addView(
-                        text("Time: $time", 14f, muted)
-                    )
-
-                    card.addView(
-                        text(
-                            "Platforms: $platforms",
-                            14f,
-                            muted
-                        )
-                    )
-
-                    addSpace(card)
-
-                    card.addView(
-                        styledButton(
-                            "Edit Schedule",
-                            Color.rgb(55, 115, 200)
-                        ) {
-                            editSchedule(index)
-                        }
-                    )
-
-                    addSpace(card)
-
-                    card.addView(
-                        styledButton(
-                            "Delete Schedule",
-                            Color.rgb(190, 55, 65)
-                        ) {
-
-                            deleteSchedule(index)
-                        }
-                    )
-
-                    addCard(list, card)
-
-                } catch (_: Exception) {
-                }
-            }
-        }
-
-        scroll.addView(list)
-
-        page.addView(
-            scroll,
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-        )
-
-        page.addView(
-            styledButton("Back to Home") {
-                showHome()
-            }
-        )
-
-        setContentView(page)
+    val page = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(16), dp(16), dp(16), dp(16))
+        setBackgroundColor(bg)
     }
+
+    page.addView(
+        text("My Scheduled Videos", 23f, fg, true)
+    )
+
+    addSpace(page, 16)
+
+    val scroll = ScrollView(this)
+
+    val list = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+    }
+
+    if (scheduledVideos.isEmpty()) {
+
+        list.addView(
+            text("No scheduled videos yet.", 15f, muted)
+        )
+
+    } else {
+
+        scheduledVideos.forEachIndexed { index, savedItem ->
+
+            try {
+
+                val data = JSONArray(savedItem)
+
+                val title = data.optString(0)
+                val date = data.optString(1)
+                val time = data.optString(2)
+                val platforms = data.optString(3)
+
+                val status = data.optString(7)
+                    .ifBlank { "Scheduled" }
+
+                val card = makeCard()
+
+                card.addView(
+                    text(title, 17f, fg, true)
+                )
+
+                addSpace(card, 6)
+
+                card.addView(
+                    text("Date: $date", 14f, muted)
+                )
+
+                card.addView(
+                    text("Time: $time", 14f, muted)
+                )
+
+                card.addView(
+                    text("Platforms: $platforms", 14f, muted)
+                )
+
+                addSpace(card, 6)
+
+                card.addView(
+                    text("Status: $status", 14f, Color.rgb(40, 150, 90), true)
+                )
+
+                addSpace(card)
+
+                card.addView(
+                    styledButton(
+                        "Edit Schedule",
+                        Color.rgb(55, 115, 200)
+                    ) {
+                        editSchedule(index)
+                    }
+                )
+
+                addSpace(card)
+
+                card.addView(
+                    styledButton(
+                        "Delete Schedule",
+                        Color.rgb(190, 55, 65)
+                    ) {
+                        deleteSchedule(index)
+                    }
+                )
+
+                addCard(list, card)
+
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    scroll.addView(list)
+
+    page.addView(
+        scroll,
+        LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            0,
+            1f
+        )
+    )
+
+    page.addView(
+        styledButton("Back to Home") {
+            showHome()
+        }
+    )
+
+    setContentView(page)
+}
+
 
     // DELETE SCHEDULE AND CANCEL WORK
 
